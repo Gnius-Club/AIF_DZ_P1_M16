@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Torre del Guardián: Final de El Desafío</title>
+    <style>
+        /* --- CORE CSS & THEME --- */
+        :root {
+            --bg-gradient: linear-gradient(to top, #1a2a6c, #b21f1f, #fdbb2d); /* Deep Space to Sunrise */
+            --bg-tower: linear-gradient(0deg, #0f2027 0%, #203a43 50%, #2c5364 100%); /* Tower Mood */
+            --color-text: #ffffff;
+            --color-accent: #ffd700;
+            --glass-panel: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-main);
+            background: var(--bg-tower);
+            color: var(--color-text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        /* --- HUD (HEADS UP DISPLAY) --- */
+        #hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 100;
+        }
+
+        .hud-title { font-size: 1.2rem; font-weight: bold; color: var(--color-accent); }
+        
+        .gem-container { display: flex; gap: 10px; }
+        .gem-slot {
+            font-size: 1.5rem;
+            opacity: 0.3;
+            filter: grayscale(100%);
+            transition: all 0.5s ease;
+            transform: scale(0.9);
+        }
+        .gem-slot.active {
+            opacity: 1;
+            filter: grayscale(0%);
+            transform: scale(1.2);
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        /* --- GAME STAGE --- */
+        #game-stage {
+            flex: 1;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .panel {
+            background: var(--glass-panel);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        h2 { color: var(--color-accent); margin-top: 0; }
+        .big-emoji { font-size: 4rem; display: block; margin: 10px 0; }
+        
+        .btn {
+            background: linear-gradient(145deg, #6e45e2, #88d3ce);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 12px 24px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 5px;
+            transition: transform 0.1s, filter 0.2s;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .btn:active { transform: scale(0.95); }
+        .btn:hover { filter: brightness(1.1); }
+        .btn-danger { background: linear-gradient(145deg, #ff416c, #ff4b2b); }
+        .btn-safe { background: linear-gradient(145deg, #11998e, #38ef7d); }
+
+        /* --- FLOOR SPECIFICS --- */
+        
+        /* Floor 1: Classification */
+        .drop-zones { display: flex; justify-content: space-around; margin-top: 20px; }
+        .zone { border: 2px dashed rgba(255,255,255,0.3); padding: 10px; border-radius: 8px; width: 45%; }
+        .item-card { background: white; color: #333; padding: 10px; border-radius: 8px; font-weight: bold; margin: 10px 0; animation: popIn 0.3s; }
+
+        /* Floor 2: Bridge */
+        .bridge-container { font-family: monospace; font-size: 1.5rem; letter-spacing: 2px; color: #aaa; margin: 20px 0; white-space: pre; }
+        .bridge-repaired { color: #38ef7d; text-shadow: 0 0 5px #38ef7d; }
+        .chat-bubble { background: #333; padding: 10px; border-radius: 10px; position: relative; margin-bottom: 15px; }
+
+        /* Floor 3: Balance */
+        .stats-container { width: 100%; margin-bottom: 15px; }
+        .stat-row { display: flex; align-items: center; margin: 5px 0; }
+        .stat-label { width: 30px; font-size: 1.5rem; }
+        .progress-bar-bg { flex: 1; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin-left: 10px; }
+        .progress-bar-fill { height: 100%; background: #00d2ff; width: 20%; transition: width 0.3s; }
+        .fill-social { background: #ff416c; }
+        .timer { font-size: 2rem; font-weight: bold; color: yellow; }
+
+        /* Floor 4: Danger */
+        .danger-room { position: relative; }
+        .crystal { font-size: 5rem; animation: pulse 1.5s infinite; cursor: pointer; }
+        .input-fake { background: #333; border: 1px solid #555; padding: 10px; color: white; width: 80%; border-radius: 5px; margin: 10px auto; display: block; }
+        .emergency-btn { width: 80px; height: 80px; border-radius: 50%; background: red; border: 4px solid darkred; box-shadow: 0 5px 15px rgba(255,0,0,0.5); font-size: 2rem; display: flex; align-items: center; justify-content: center; margin: 10px auto; cursor: pointer; animation: shake 3s infinite; }
+
+        /* Victory */
+        .confetti { position: absolute; width: 10px; height: 10px; background: #f00; animation: fall linear forwards; }
+        .diploma { border: 4px double gold; padding: 20px; background: rgba(0,0,0,0.8); }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+        @keyframes pulse { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.1); filter: brightness(1.3); } 100% { transform: scale(1); } }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
+        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+        
+        /* Utils */
+        .hidden { display: none !important; }
+        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; }
+
+    </style>
+</head>
+<body>
+
+    <!-- HUD -->
+    <header id="hud">
+        <div class="hud-title">TORRE DEL GUARDÍAN</div>
+        <div class="gem-container">
+            <div id="gem-1" class="gem-slot" title="Privacidad">🔒</div>
+            <div id="gem-2" class="gem-slot" title="Respeto">🤝</div>
+            <div id="gem-3" class="gem-slot" title="Balance">⚖️</div>
+            <div id="gem-4" class="gem-slot" title="Seguridad">🛡️</div>
+        </div>
+    </header>
+
+    <!-- MAIN GAME AREA -->
+    <main id="game-stage">
+        <!-- Content injected via JS -->
+    </main>
+
+    <!-- FEEDBACK TOAST -->
+    <div id="toast" class="toast">Mensaje del sistema</div>
+
+    <script>
+        /* 
+         * LA TORRE DEL GUARDIÁN - GAME ENGINE
+         * Pattern: State Machine & Monolithic Component
+         * Author: Senior Game Dev AI
+         */
+
+        // --- GAME STATE & DATA ---
+        const state = {
+            currentFloor: 0,
+            gems: [false, false, false, false],
+            floor1Index: 0,
+            floor3Data: { energy: 20, social: 20, time: 30, interval: null }
+        };
+
+        const floor1Items = [
+            { text: "Mi dirección de casa", type: "private" },
+            { text: "Me gustan los gatos", type: "public" },
+            { text: "Mi número de teléfono", type: "private" },
+            { text: "Un dibujo de un árbol", type: "public" },
+            { text: "Nombre de mi escuela", type: "private" }
+        ];
+
+        // --- AUDIO ENGINE (Web Audio API) ---
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+            
+            if (type === 'ding') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(500, now);
+                osc.frequency.exponentialRampToValueAtTime(1000, now + 0.1);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                osc.start(now);
+                osc.stop(now + 0.5);
+            } else if (type === 'buzzer') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now);
+                osc.stop(now + 0.3);
+            } else if (type === 'win') {
+                // Arpeggio
+                [440, 554, 659, 880].forEach((freq, i) => {
+                    const o = audioCtx.createOscillator();
+                    const g = audioCtx.createGain();
+                    o.connect(g);
+                    g.connect(audioCtx.destination);
+                    o.type = 'triangle';
+                    o.frequency.value = freq;
+                    g.gain.setValueAtTime(0.2, now + i*0.1);
+                    g.gain.exponentialRampToValueAtTime(0.01, now + i*0.1 + 0.6);
+                    o.start(now + i*0.1);
+                    o.stop(now + i*0.1 + 0.6);
+                });
+            }
+        }
+
+        // --- UI HELPERS ---
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        function unlockGem(index) {
+            state.gems[index] = true;
+            const slot = document.getElementById(`gem-${index+1}`);
+            slot.classList.add('active');
+            slot.innerHTML = ['🔒','🤝','⚖️','🛡️'][index]; // Ensure icon matches
+            playSound('ding');
+        }
+
+        // --- RENDER ENGINE ---
+        const stage = document.getElementById('game-stage');
+
+        function render() {
+            stage.innerHTML = ''; // Clear stage
+            
+            switch(state.currentFloor) {
+                case 0: renderIntro(); break;
+                case 1: renderFloor1(); break;
+                case 2: renderFloor2(); break;
+                case 3: renderFloor3(); break;
+                case 4: renderFloor4(); break;
+                case 5: renderVictory(); break;
+            }
+        }
+
+        // --- STATES IMPLEMENTATION ---
+
+        // 0. INTRO
+        function renderIntro() {
+            stage.innerHTML = `
+                <div class="panel">
+                    <span class="big-emoji">🧙‍♂️</span>
+                    <h2>El Guía Maestro</h2>
+                    <p>Bienvenido, joven aprendiz. La Torre del Guardián está en caos.</p>
+                    <p>Debes superar 4 pruebas para recuperar las Gemas de la Ciudadanía Digital.</p>
+                    <button class="btn" onclick="nextFloor()">Entrar a la Torre</button>
+                </div>
+            `;
+        }
+
+        // 1. FLOOR 1: PRIVACY
+        function renderFloor1() {
+            if (state.floor1Index >= floor1Items.length) {
+                finishFloor1();
+                return;
+            }
+            const item = floor1Items[state.floor1Index];
+            stage.innerHTML = `
+                <div class="panel">
+                    <h3>Piso 1: El Santuario</h3>
+                    <p>Clasifica la información: ¿Es privada o pública?</p>
+                    <div class="item-card">${item.text}</div>
+                    <div class="drop-zones">
+                        <div class="zone">
+                            <span class="big-emoji">🔒</span><br>
+                            <button class="btn" onclick="checkFloor1('private')">Al Cofre</button>
+                        </div>
+                        <div class="zone">
+                            <span class="big-emoji">📢</span><br>
+                            <button class="btn" onclick="checkFloor1('public')">A la Canasta</button>
+                        </div>
+                    </div>
+                    <p style="font-size:0.8rem; opacity:0.7">Progreso: ${state.floor1Index + 1}/${floor1Items.length}</p>
+                </div>
+            `;
+        }
+
+        function checkFloor1(choice) {
+            const correct = floor1Items[state.floor1Index].type;
+            if (choice === correct) {
+                playSound('ding');
+                state.floor1Index++;
+                renderFloor1();
+            } else {
+                playSound('buzzer');
+                showToast("¡Cuidado! Eso no va ahí.");
+                // Shake effect logic could go here
+            }
+        }
+
+        function finishFloor1() {
+            unlockGem(0);
+            showToast("¡Gema de la Privacidad obtenida!");
+            setTimeout(nextFloor, 1500);
+        }
+
+        // 2. FLOOR 2: RESPECT (Bridge)
+        function renderFloor2() {
+            stage.innerHTML = `
+                <div class="panel">
+                    <h3>Piso 2: El Puente Roto</h3>
+                    <div class="chat-bubble">
+                        <span style="font-size:1.5rem">🤖</span> <b>Bot Enojado:</b><br>
+                        "¡Juegas fatal! ¡Nadie te quiere en el equipo!"
+                    </div>
+                    <div id="bridge-visual" class="bridge-container">[___      ___]</div>
+                    <p>El puente se rompe con el odio. ¿Qué haces?</p>
+                    <button class="btn btn-danger" onclick="actFloor2(1)">"¡Cállate tú!"</button>
+                    <button class="btn" onclick="actFloor2(2)">Ignorar</button>
+                    <button class="btn btn-safe" onclick="actFloor2(3)">"Tranquilo, intentémoslo de nuevo" 📣</button>
+                </div>
+            `;
+        }
+
+        function actFloor2(option) {
+            const bridge = document.getElementById('bridge-visual');
+            if (option === 1) {
+                playSound('buzzer');
+                bridge.innerHTML = "[_          _]"; // Breaks more
+                showToast("Responder con odio rompe más el puente.");
+            } else if (option === 2) {
+                showToast("Ignorar está bien, pero no repara el daño.");
+            } else if (option === 3) {
+                bridge.innerHTML = "[==========]"; // Repairs
+                bridge.classList.add('bridge-repaired');
+                unlockGem(1);
+                showToast("¡Gema del Respeto obtenida!");
+                setTimeout(nextFloor, 2000);
+            }
+        }
+
+        // 3. FLOOR 3: BALANCE
+        function renderFloor3() {
+            // Reset logic if first time
+            if (!state.floor3Data.interval) {
+                startFloor3Loop();
+            }
+
+            stage.innerHTML = `
+                <div class="panel">
+                    <h3>Piso 3: El Jardín</h3>
+                    <p>¡Mantén el equilibrio! Llega al 80% en ambas barras.</p>
+                    <div class="timer" id="f3-timer">30</div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-row">
+                            <span class="stat-label">⚡</span>
+                            <div class="progress-bar-bg"><div id="bar-energy" class="progress-bar-fill" style="width:20%"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">❤️</span>
+                            <div class="progress-bar-bg"><div id="bar-social" class="progress-bar-fill fill-social" style="width:20%"></div></div>
+                        </div>
+                    </div>
+
+                    <button class="btn" onclick="actFloor3('tablet')">📱 Tablet</button>
+                    <button class="btn" onclick="actFloor3('bike')">🚴 Bici</button>
+                    <button class="btn" onclick="actFloor3('friends')">⚽ Amigos</button>
+                </div>
+            `;
+        }
+
+        function startFloor3Loop() {
+            state.floor3Data.energy = 20;
+            state.floor3Data.social = 20;
+            state.floor3Data.time = 30;
+            
+            state.floor3Data.interval = setInterval(() => {
+                state.floor3Data.time--;
+                document.getElementById('f3-timer').innerText = state.floor3Data.time;
+                
+                // Lose condition
+                if (state.floor3Data.time <= 0) {
+                    clearInterval(state.floor3Data.interval);
+                    state.floor3Data.interval = null;
+                    playSound('buzzer');
+                    showToast("¡Se acabó el tiempo! Reintentando...");
+                    setTimeout(renderFloor3, 1500); // Restart level
+                }
+            }, 1000);
+        }
+
+        function actFloor3(action) {
+            if (state.floor3Data.time <= 0) return;
+
+            if (action === 'tablet') {
+                state.floor3Data.social += 5;
+                state.floor3Data.energy -= 5;
+            } else if (action === 'bike') {
+                state.floor3Data.energy += 15;
+            } else if (action === 'friends') {
+                state.floor3Data.social += 15;
+                state.floor3Data.energy -= 5;
+            }
+
+            // Clamp values
+            state.floor3Data.social = Math.min(100, Math.max(0, state.floor3Data.social));
+            state.floor3Data.energy = Math.min(100, Math.max(0, state.floor3Data.energy));
+
+            // Update UI
+            document.getElementById('bar-energy').style.width = state.floor3Data.energy + '%';
+            document.getElementById('bar-social').style.width = state.floor3Data.social + '%';
+
+            // Win Condition
+            if (state.floor3Data.social >= 80 && state.floor3Data.energy >= 80) {
+                clearInterval(state.floor3Data.interval);
+                state.floor3Data.interval = null; // Prevent loops
+                unlockGem(2);
+                showToast("¡Equilibrio perfecto! Gema obtenida.");
+                setTimeout(nextFloor, 2000);
+            }
+        }
+
+        // 4. FLOOR 4: SECURITY (Danger Room)
+        function renderFloor4() {
+            stage.innerHTML = `
+                <div class="panel danger-room">
+                    <h3>Piso 4: Sala de Peligros</h3>
+                    <div class="crystal" onclick="actFloor4('crystal')">💎</div>
+                    <p style="color:#ff9999">"¡Hay un incendio! Dame tu nombre completo para apagarlo"</p>
+                    
+                    <input type="text" class="input-fake" placeholder="Escribe tu nombre aquí..." onfocus="actFloor4('input')">
+                    
+                    <div style="display:flex; justify-content:center; gap:20px; align-items:center; margin-top:20px;">
+                        <span style="font-size:3rem; cursor:pointer;" onclick="actFloor4('cables')">🔌</span>
+                        <div class="emergency-btn" onclick="actFloor4('button')">🚨</div>
+                        <span style="font-size:3rem; cursor:pointer;" onclick="actFloor4('water')">💧</span>
+                    </div>
+                    <p><small>¡Toca el botón correcto!</small></p>
+                </div>
+            `;
+        }
+
+        function actFloor4(action) {
+            if (action === 'button') {
+                // Correct
+                unlockGem(3);
+                playSound('win');
+                showToast("¡Ayuda solicitada! Gema de Seguridad obtenida.");
+                setTimeout(nextFloor, 2000);
+            } else {
+                // Incorrect
+                playSound('buzzer');
+                if(action === 'input') showToast("¡Nunca des datos personales a extraños/cristales!");
+                else showToast("¡Eso es peligroso! Busca un adulto.");
+                
+                // Visual shake
+                const panel = document.querySelector('.panel');
+                panel.style.animation = 'shake 0.5s';
+                setTimeout(() => panel.style.animation = '', 500);
+            }
+        }
+
+        // 5. VICTORY
+        function renderVictory() {
+            createConfetti();
+            playSound('win');
+            stage.innerHTML = `
+                <div class="panel diploma">
+                    <span class="big-emoji">🏆</span>
+                    <h1 style="color:gold; text-shadow: 2px 2px 0 #000;">¡FELICIDADES!</h1>
+                    <p>Has completado "La Torre del Guardián".</p>
+                    <p>Ahora eres un Maestro de la Ciudadanía Digital.</p>
+                    <div style="font-size:2rem; margin: 20px 0;">
+                        🔒 🤝 ⚖️ 🛡️
+                    </div>
+                    <button class="btn" onclick="location.reload()">Jugar otra vez</button>
+                </div>
+            `;
+        }
+
+        function createConfetti() {
+            const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f'];
+            for (let i = 0; i < 50; i++) {
+                const conf = document.createElement('div');
+                conf.classList.add('confetti');
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                conf.style.opacity = Math.random();
+                document.body.appendChild(conf);
+            }
+        }
+
+        // --- NAVIGATION ---
+        function nextFloor() {
+            state.currentFloor++;
+            render();
+        }
+
+        // Init Game
+        render();
+
+    </script>
+</body>
+</html>
