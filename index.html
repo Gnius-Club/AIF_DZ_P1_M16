@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Torre del Guardián: Final de El Desafío</title>
+    <title>La Torre del Guardián: Misión Final</title>
     <style>
         /* --- CORE CSS & THEME --- */
         :root {
-            --bg-gradient: linear-gradient(to top, #1a2a6c, #b21f1f, #fdbb2d); /* Deep Space to Sunrise */
-            --bg-tower: linear-gradient(0deg, #0f2027 0%, #203a43 50%, #2c5364 100%); /* Tower Mood */
+            --bg-sky: linear-gradient(to top, #0f2027, #203a43, #2c5364);
             --color-text: #ffffff;
             --color-accent: #ffd700;
-            --glass-panel: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --glass-panel: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --font-main: 'Verdana', sans-serif;
         }
 
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -22,7 +21,7 @@
             margin: 0;
             padding: 0;
             font-family: var(--font-main);
-            background: var(--bg-tower);
+            background: var(--bg-sky);
             color: var(--color-text);
             height: 100vh;
             display: flex;
@@ -36,28 +35,37 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 10px 20px;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(5px);
-            border-bottom: 1px solid var(--glass-border);
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.8);
+            border-bottom: 2px solid var(--color-accent);
             z-index: 100;
+            height: 70px;
         }
 
-        .hud-title { font-size: 1.2rem; font-weight: bold; color: var(--color-accent); }
+        .hud-controls { display: flex; gap: 10px; align-items: center; }
+        .hud-btn { background: #444; border: 1px solid #fff; border-radius: 50%; width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer; }
+        .hud-btn:active { transform: scale(0.9); }
         
-        .gem-container { display: flex; gap: 10px; }
+        .gem-container { display: flex; gap: 8px; }
         .gem-slot {
             font-size: 1.5rem;
             opacity: 0.3;
             filter: grayscale(100%);
             transition: all 0.5s ease;
-            transform: scale(0.9);
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .gem-slot.active {
             opacity: 1;
             filter: grayscale(0%);
-            transform: scale(1.2);
-            text-shadow: 0 0 10px currentColor;
+            transform: scale(1.1);
+            box-shadow: 0 0 10px var(--color-accent);
+            background: rgba(255,215,0,0.2);
         }
 
         /* --- GAME STAGE --- */
@@ -68,99 +76,131 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 20px;
-            max-width: 600px;
+            padding: 15px;
             width: 100%;
+            max-width: 600px;
             margin: 0 auto;
         }
 
         .panel {
             background: var(--glass-panel);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
+            border: 2px solid var(--glass-border);
+            border-radius: 20px;
             padding: 20px;
             width: 100%;
             backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            animation: fadeIn 0.5s ease-out;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.5s ease-out;
+            position: relative;
         }
 
-        h2 { color: var(--color-accent); margin-top: 0; }
-        .big-emoji { font-size: 4rem; display: block; margin: 10px 0; }
+        h2, h3 { color: var(--color-accent); margin: 5px 0 15px 0; text-shadow: 1px 1px 2px black; }
+        p { font-size: 1.1rem; line-height: 1.4; margin-bottom: 15px; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
+        
+        .big-emoji { font-size: 4rem; display: block; margin: 10px 0; animation: float 3s ease-in-out infinite; }
         
         .btn {
-            background: linear-gradient(145deg, #6e45e2, #88d3ce);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            padding: 12px 24px;
-            font-size: 1rem;
+            background: linear-gradient(180deg, #4facfe 0%, #00f2fe 100%);
+            border: 2px solid white;
+            border-radius: 12px;
+            color: #003;
+            padding: 15px 20px;
+            font-size: 1.1rem;
             cursor: pointer;
-            margin: 5px;
-            transition: transform 0.1s, filter 0.2s;
+            margin: 8px;
+            width: 90%;
+            max-width: 300px;
             font-weight: bold;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 0 #0099cc;
+            transition: transform 0.1s;
         }
-        .btn:active { transform: scale(0.95); }
-        .btn:hover { filter: brightness(1.1); }
-        .btn-danger { background: linear-gradient(145deg, #ff416c, #ff4b2b); }
-        .btn-safe { background: linear-gradient(145deg, #11998e, #38ef7d); }
+        .btn:active { transform: translateY(4px); box-shadow: 0 0 0 #0099cc; }
+        .btn-danger { background: linear-gradient(180deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); color: #500; box-shadow: 0 4px 0 #c06060; }
+        .btn-safe { background: linear-gradient(180deg, #84fab0 0%, #8fd3f4 100%); color: #030; box-shadow: 0 4px 0 #4ca370; }
 
-        /* --- FLOOR SPECIFICS --- */
+        /* --- TOWER VISUALS --- */
+        #tower-map {
+            display: flex;
+            flex-direction: column-reverse; 
+            gap: 5px;
+            width: 200px;
+            margin-bottom: 20px;
+        }
+        .tower-floor {
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #555;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #777;
+        }
+        .tower-floor.locked { background: #222; }
+        .tower-floor.current { 
+            background: linear-gradient(90deg, #1a2a6c, #b21f1f); 
+            border-color: gold; 
+            color: white; 
+            box-shadow: 0 0 15px gold;
+            transform: scale(1.05);
+        }
+        .tower-floor.completed { background: #28a745; color: white; border-color: #cfc; }
         
-        /* Floor 1: Classification */
-        .drop-zones { display: flex; justify-content: space-around; margin-top: 20px; }
-        .zone { border: 2px dashed rgba(255,255,255,0.3); padding: 10px; border-radius: 8px; width: 45%; }
-        .item-card { background: white; color: #333; padding: 10px; border-radius: 8px; font-weight: bold; margin: 10px 0; animation: popIn 0.3s; }
+        /* --- TIMER --- */
+        .timer-wrapper {
+            width: 100%;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            margin: 10px 0;
+            overflow: hidden;
+            display: none; 
+        }
+        .timer-bar {
+            height: 100%;
+            background: #ff416c;
+            width: 100%;
+            transform-origin: left;
+        }
+        .timer-animate { animation: countdown linear forwards; }
 
-        /* Floor 2: Bridge */
-        .bridge-container { font-family: monospace; font-size: 1.5rem; letter-spacing: 2px; color: #aaa; margin: 20px 0; white-space: pre; }
-        .bridge-repaired { color: #38ef7d; text-shadow: 0 0 5px #38ef7d; }
-        .chat-bubble { background: #333; padding: 10px; border-radius: 10px; position: relative; margin-bottom: 15px; }
-
-        /* Floor 3: Balance */
-        .stats-container { width: 100%; margin-bottom: 15px; }
+        /* --- LEVEL SPECIFICS --- */
+        .drop-zones { display: flex; justify-content: space-around; margin-top: 10px; }
+        .zone { border: 2px dashed rgba(255,255,255,0.5); padding: 10px; border-radius: 12px; width: 45%; background: rgba(0,0,0,0.2); }
+        .item-card { background: white; color: #333; padding: 15px; border-radius: 12px; font-weight: 800; font-size: 1.2rem; margin: 10px auto; animation: popIn 0.3s; box-shadow: 0 5px 0 #ccc; width: 80%; }
+        .bridge-container { font-family: monospace; font-size: 1.2rem; color: #aaa; margin: 10px 0; white-space: pre; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; }
+        .chat-bubble { background: #333; padding: 15px; border-radius: 15px 15px 15px 0; position: relative; margin-bottom: 15px; text-align: left; border: 1px solid #555; }
+        .stats-container { width: 100%; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 10px; }
         .stat-row { display: flex; align-items: center; margin: 5px 0; }
-        .stat-label { width: 30px; font-size: 1.5rem; }
-        .progress-bar-bg { flex: 1; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin-left: 10px; }
+        .progress-bar-bg { flex: 1; height: 15px; background: #222; border-radius: 10px; overflow: hidden; margin-left: 10px; border: 1px solid #555; }
         .progress-bar-fill { height: 100%; background: #00d2ff; width: 20%; transition: width 0.3s; }
-        .fill-social { background: #ff416c; }
-        .timer { font-size: 2rem; font-weight: bold; color: yellow; }
-
-        /* Floor 4: Danger */
-        .danger-room { position: relative; }
-        .crystal { font-size: 5rem; animation: pulse 1.5s infinite; cursor: pointer; }
-        .input-fake { background: #333; border: 1px solid #555; padding: 10px; color: white; width: 80%; border-radius: 5px; margin: 10px auto; display: block; }
-        .emergency-btn { width: 80px; height: 80px; border-radius: 50%; background: red; border: 4px solid darkred; box-shadow: 0 5px 15px rgba(255,0,0,0.5); font-size: 2rem; display: flex; align-items: center; justify-content: center; margin: 10px auto; cursor: pointer; animation: shake 3s infinite; }
-
-        /* Victory */
-        .confetti { position: absolute; width: 10px; height: 10px; background: #f00; animation: fall linear forwards; }
-        .diploma { border: 4px double gold; padding: 20px; background: rgba(0,0,0,0.8); }
+        .emergency-btn { width: 90px; height: 90px; border-radius: 50%; background: radial-gradient(circle, #ff416c 0%, #ff4b2b 100%); border: 4px solid white; box-shadow: 0 0 20px red; font-size: 2.5rem; display: flex; align-items: center; justify-content: center; margin: 10px auto; cursor: pointer; animation: pulse 1s infinite; }
 
         /* --- ANIMATIONS --- */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
-        @keyframes pulse { 0% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.1); filter: brightness(1.3); } 100% { transform: scale(1); } }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }
-        @keyframes fall { to { transform: translateY(100vh) rotate(720deg); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        @keyframes countdown { from { width: 100%; background: #0f0; } 50% { background: #ff0; } to { width: 0%; background: #f00; } }
         
-        /* Utils */
-        .hidden { display: none !important; }
-        .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #333; color: white; padding: 10px 20px; border-radius: 20px; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-        .toast.show { opacity: 1; }
-
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #fff; color: #000; padding: 15px 30px; border-radius: 30px; z-index: 200; opacity: 0; transition: opacity 0.3s; pointer-events: none; font-weight: bold; box-shadow: 0 5px 15px rgba(0,0,0,0.5); width: 80%; }
+        .toast.show { opacity: 1; bottom: 50%; }
     </style>
 </head>
 <body>
 
     <!-- HUD -->
     <header id="hud">
-        <div class="hud-title">TORRE DEL GUARDÍAN</div>
+        <div class="hud-controls">
+            <button class="hud-btn" onclick="toggleMute()" id="btn-mute">🔊</button>
+            <button class="hud-btn" onclick="replayAudio()" id="btn-replay">🔄</button>
+        </div>
         <div class="gem-container">
-            <div id="gem-1" class="gem-slot" title="Privacidad">🔒</div>
-            <div id="gem-2" class="gem-slot" title="Respeto">🤝</div>
-            <div id="gem-3" class="gem-slot" title="Balance">⚖️</div>
-            <div id="gem-4" class="gem-slot" title="Seguridad">🛡️</div>
+            <div id="gem-1" class="gem-slot">🔒</div>
+            <div id="gem-2" class="gem-slot">🤝</div>
+            <div id="gem-3" class="gem-slot">⚖️</div>
+            <div id="gem-4" class="gem-slot">🛡️</div>
         </div>
     </header>
 
@@ -174,362 +214,470 @@
 
     <script>
         /* 
-         * LA TORRE DEL GUARDIÁN - GAME ENGINE
-         * Pattern: State Machine & Monolithic Component
-         * Author: Senior Game Dev AI
+         * LA TORRE DEL GUARDIÁN - MOTOR V3
          */
 
-        // --- GAME STATE & DATA ---
+        // --- GAME STATE & VARIABLES ---
+        let confettiInterval = null; // Variable para controlar el confeti
+        
         const state = {
-            currentFloor: 0,
+            view: 'intro',
+            currentFloorIdx: 0,
             gems: [false, false, false, false],
+            audioEnabled: true,
+            lastSpokenText: "",
+            timerId: null,
             floor1Index: 0,
-            floor3Data: { energy: 20, social: 20, time: 30, interval: null }
+            floor3Data: { energy: 30, social: 30, time: 30, interval: null }
         };
 
-        const floor1Items = [
-            { text: "Mi dirección de casa", type: "private" },
-            { text: "Me gustan los gatos", type: "public" },
-            { text: "Mi número de teléfono", type: "private" },
-            { text: "Un dibujo de un árbol", type: "public" },
-            { text: "Nombre de mi escuela", type: "private" }
+        const floors = [
+            { name: "Santuario de Privacidad", icon: "🔒", theme: "Datos" },
+            { name: "Puente del Respeto", icon: "🤝", theme: "Social" },
+            { name: "Jardín del Balance", icon: "⚖️", theme: "Salud" },
+            { name: "Sala de Peligros", icon: "🛡️", theme: "Seguridad" }
         ];
 
-        // --- AUDIO ENGINE (Web Audio API) ---
+        const floor1ItemsOriginal = [
+            { text: "Mi dirección", type: "private", audio: "Mi dirección de casa. ¿Es secreto o para todos?" },
+            { text: "Me gustan los gatos", type: "public", audio: "Me gustan los gatos. ¿Es secreto o para todos?" },
+            { text: "Mi contraseña", type: "private", audio: "Mi contraseña secreta. ¿Cofre o canasta?" }
+        ];
+
+        // --- AUDIO ENGINE ---
+        const synth = window.speechSynthesis;
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        
+
         function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            if (!state.audioEnabled || audioCtx.state === 'suspended') audioCtx.resume();
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.connect(gain);
             gain.connect(audioCtx.destination);
-
             const now = audioCtx.currentTime;
-            
+
             if (type === 'ding') {
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(500, now);
                 osc.frequency.exponentialRampToValueAtTime(1000, now + 0.1);
-                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.setValueAtTime(0.2, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-                osc.start(now);
-                osc.stop(now + 0.5);
+                osc.start(now); osc.stop(now + 0.5);
             } else if (type === 'buzzer') {
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(150, now);
                 osc.frequency.linearRampToValueAtTime(100, now + 0.3);
-                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.setValueAtTime(0.2, now);
                 gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now);
-                osc.stop(now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
             } else if (type === 'win') {
-                // Arpeggio
-                [440, 554, 659, 880].forEach((freq, i) => {
-                    const o = audioCtx.createOscillator();
-                    const g = audioCtx.createGain();
-                    o.connect(g);
-                    g.connect(audioCtx.destination);
-                    o.type = 'triangle';
-                    o.frequency.value = freq;
-                    g.gain.setValueAtTime(0.2, now + i*0.1);
-                    g.gain.exponentialRampToValueAtTime(0.01, now + i*0.1 + 0.6);
-                    o.start(now + i*0.1);
-                    o.stop(now + i*0.1 + 0.6);
-                });
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.linearRampToValueAtTime(800, now+0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                osc.start(now); osc.stop(now+1);
             }
         }
 
-        // --- UI HELPERS ---
+        function speak(text) {
+            if (!state.audioEnabled) return;
+            state.lastSpokenText = text;
+            synth.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'es-ES';
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+            synth.speak(utterance);
+        }
+
+        function toggleMute() {
+            state.audioEnabled = !state.audioEnabled;
+            document.getElementById('btn-mute').textContent = state.audioEnabled ? '🔊' : '🔇';
+            if(!state.audioEnabled) synth.cancel();
+        }
+
+        function replayAudio() {
+            if(state.lastSpokenText) speak(state.lastSpokenText);
+        }
+
+        // --- UI & TIMERS ---
         function showToast(msg) {
             const t = document.getElementById('toast');
             t.textContent = msg;
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2000);
+            setTimeout(() => t.classList.remove('show'), 2500);
         }
 
-        function unlockGem(index) {
-            state.gems[index] = true;
-            const slot = document.getElementById(`gem-${index+1}`);
-            slot.classList.add('active');
-            slot.innerHTML = ['🔒','🤝','⚖️','🛡️'][index]; // Ensure icon matches
-            playSound('ding');
+        function startTimer(seconds, callback) {
+            if(state.timerId) clearTimeout(state.timerId);
+            const bar = document.getElementById('timer-bar');
+            const wrapper = document.getElementById('timer-wrapper');
+            
+            if(wrapper && bar) {
+                wrapper.style.display = 'block';
+                bar.classList.remove('timer-animate');
+                void bar.offsetWidth; 
+                bar.style.animationDuration = seconds + 's';
+                bar.classList.add('timer-animate');
+            }
+
+            state.timerId = setTimeout(() => {
+                playSound('buzzer');
+                if(callback) callback();
+            }, seconds * 1000);
+        }
+
+        function stopTimer() {
+            if(state.timerId) clearTimeout(state.timerId);
+            const wrapper = document.getElementById('timer-wrapper');
+            if(wrapper) wrapper.style.display = 'none';
         }
 
         // --- RENDER ENGINE ---
         const stage = document.getElementById('game-stage');
 
         function render() {
-            stage.innerHTML = ''; // Clear stage
-            
-            switch(state.currentFloor) {
-                case 0: renderIntro(); break;
-                case 1: renderFloor1(); break;
-                case 2: renderFloor2(); break;
-                case 3: renderFloor3(); break;
-                case 4: renderFloor4(); break;
-                case 5: renderVictory(); break;
+            stage.innerHTML = '';
+            stopTimer();
+
+            switch(state.view) {
+                case 'intro': renderIntro(); break;
+                case 'tower': renderTowerMap(); break;
+                case 'floor1': renderFloor1(); break;
+                case 'floor2': renderFloor2(); break;
+                case 'floor3': renderFloor3(); break;
+                case 'floor4': renderFloor4(); break;
+                case 'victory': renderVictory(); break;
             }
         }
 
-        // --- STATES IMPLEMENTATION ---
+        // --- GAME LOGIC ---
 
-        // 0. INTRO
         function renderIntro() {
             stage.innerHTML = `
                 <div class="panel">
                     <span class="big-emoji">🧙‍♂️</span>
-                    <h2>El Guía Maestro</h2>
-                    <p>Bienvenido, joven aprendiz. La Torre del Guardián está en caos.</p>
-                    <p>Debes superar 4 pruebas para recuperar las Gemas de la Ciudadanía Digital.</p>
-                    <button class="btn" onclick="nextFloor()">Entrar a la Torre</button>
+                    <h2>El Desafío de la Torre</h2>
+                    <p>¡Hola Aspirante! Sube los 4 pisos y recupera las gemas.</p>
+                    <p>Escucha bien las instrucciones.</p>
+                    <button class="btn" onclick="startGame()">¡ESTOY LISTO!</button>
                 </div>
             `;
         }
 
-        // 1. FLOOR 1: PRIVACY
-        function renderFloor1() {
-            if (state.floor1Index >= floor1Items.length) {
-                finishFloor1();
-                return;
+        function startGame() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            state.view = 'tower';
+            render();
+        }
+
+        // --- RESET LOGIC (NUEVO) ---
+        function resetGame() {
+            // 1. Limpiar timers y loops
+            stopTimer();
+            if(state.floor3Data.interval) clearInterval(state.floor3Data.interval);
+            state.floor3Data.interval = null;
+            if(confettiInterval) clearInterval(confettiInterval);
+            
+            // 2. Limpiar confetti visual existente
+            document.querySelectorAll('div').forEach(el => {
+                if(el.innerText === '🎉') el.remove();
+            });
+
+            // 3. Resetear variables de estado
+            state.view = 'intro';
+            state.currentFloorIdx = 0;
+            state.gems = [false, false, false, false];
+            state.floor1Index = 0;
+            state.floor3Data = { energy: 30, social: 30, time: 30, interval: null };
+
+            // 4. Resetear UI del HUD
+            for(let i=1; i<=4; i++) {
+                document.getElementById('gem-'+i).classList.remove('active');
             }
-            const item = floor1Items[state.floor1Index];
-            stage.innerHTML = `
-                <div class="panel">
-                    <h3>Piso 1: El Santuario</h3>
-                    <p>Clasifica la información: ¿Es privada o pública?</p>
-                    <div class="item-card">${item.text}</div>
-                    <div class="drop-zones">
-                        <div class="zone">
-                            <span class="big-emoji">🔒</span><br>
-                            <button class="btn" onclick="checkFloor1('private')">Al Cofre</button>
-                        </div>
-                        <div class="zone">
-                            <span class="big-emoji">📢</span><br>
-                            <button class="btn" onclick="checkFloor1('public')">A la Canasta</button>
-                        </div>
+
+            // 5. Renderizar
+            render();
+        }
+
+        function renderTowerMap() {
+            speak("Subiendo al piso " + (state.currentFloorIdx + 1) + ". " + floors[state.currentFloorIdx].name);
+            
+            let towerHTML = `<div id="tower-map">`;
+            for(let i=3; i>=0; i--) {
+                let status = 'locked';
+                if(i < state.currentFloorIdx) status = 'completed';
+                if(i === state.currentFloorIdx) status = 'current';
+                
+                towerHTML += `
+                    <div class="tower-floor ${status}">
+                        ${i+1}. ${floors[i].icon} ${floors[i].theme}
                     </div>
-                    <p style="font-size:0.8rem; opacity:0.7">Progreso: ${state.floor1Index + 1}/${floor1Items.length}</p>
+                `;
+            }
+            towerHTML += `</div>`;
+
+            stage.innerHTML = `
+                <div class="panel" style="background:none; border:none; box-shadow:none;">
+                    <h2 style="color:white; text-shadow:0 0 10px blue">ASCENDIENDO...</h2>
+                    ${towerHTML}
                 </div>
             `;
+
+            setTimeout(() => {
+                state.view = 'floor' + (state.currentFloorIdx + 1);
+                render();
+            }, 3000);
+        }
+
+        // --- LEVELS ---
+        function renderFloor1() {
+            if (state.floor1Index >= floor1ItemsOriginal.length) {
+                completeLevel(0);
+                return;
+            }
+            const item = floor1ItemsOriginal[state.floor1Index];
+            speak(item.audio);
+
+            stage.innerHTML = `
+                <div class="panel">
+                    <h3>Piso 1: El Santuario 🔒</h3>
+                    <div class="timer-wrapper" id="timer-wrapper"><div class="timer-bar" id="timer-bar"></div></div>
+                    <p>Clasifica rápido antes que se acabe el tiempo:</p>
+                    <div class="item-card">${item.text}</div>
+                    <div class="drop-zones">
+                        <div class="zone" onclick="checkFloor1('private')">
+                            <span style="font-size:2rem">📦</span><br>Cofre Secreto
+                        </div>
+                        <div class="zone" onclick="checkFloor1('public')">
+                            <span style="font-size:2rem">📢</span><br>Para Todos
+                        </div>
+                    </div>
+                </div>
+            `;
+            startTimer(8, () => {
+                showToast("¡Tiempo agotado!");
+                renderFloor1();
+            });
         }
 
         function checkFloor1(choice) {
-            const correct = floor1Items[state.floor1Index].type;
+            stopTimer();
+            const correct = floor1ItemsOriginal[state.floor1Index].type;
             if (choice === correct) {
                 playSound('ding');
                 state.floor1Index++;
                 renderFloor1();
             } else {
                 playSound('buzzer');
-                showToast("¡Cuidado! Eso no va ahí.");
-                // Shake effect logic could go here
+                speak("¡Inténtalo de nuevo!");
+                showToast("¡Incorrecto!");
+                setTimeout(renderFloor1, 1000); 
             }
         }
 
-        function finishFloor1() {
-            unlockGem(0);
-            showToast("¡Gema de la Privacidad obtenida!");
-            setTimeout(nextFloor, 1500);
-        }
-
-        // 2. FLOOR 2: RESPECT (Bridge)
         function renderFloor2() {
+            const dialogue = "Un compañero te dice algo feo. ¿Qué haces?";
+            speak(dialogue);
             stage.innerHTML = `
                 <div class="panel">
-                    <h3>Piso 2: El Puente Roto</h3>
+                    <h3>Piso 2: El Puente 🤝</h3>
                     <div class="chat-bubble">
-                        <span style="font-size:1.5rem">🤖</span> <b>Bot Enojado:</b><br>
-                        "¡Juegas fatal! ¡Nadie te quiere en el equipo!"
+                        <span style="font-size:1.5rem">😠</span> <b>Jugador2:</b><br>
+                        "¡Eres muy malo jugando!"
                     </div>
-                    <div id="bridge-visual" class="bridge-container">[___      ___]</div>
-                    <p>El puente se rompe con el odio. ¿Qué haces?</p>
-                    <button class="btn btn-danger" onclick="actFloor2(1)">"¡Cállate tú!"</button>
-                    <button class="btn" onclick="actFloor2(2)">Ignorar</button>
-                    <button class="btn btn-safe" onclick="actFloor2(3)">"Tranquilo, intentémoslo de nuevo" 📣</button>
+                    <div class="bridge-container" id="bridge">[___  ROTO  ___]</div>
+                    <div class="timer-wrapper" id="timer-wrapper"><div class="timer-bar" id="timer-bar"></div></div>
+                    <button class="btn btn-danger" onclick="actFloor2(1)">"¡Tú eres peor!" 😡</button>
+                    <button class="btn btn-safe" onclick="actFloor2(2)">"No digas eso, juguemos en equipo" 📣</button>
                 </div>
             `;
+            startTimer(10, () => {
+                showToast("¡El puente se derrumbó!");
+                renderFloor2();
+            });
         }
 
-        function actFloor2(option) {
-            const bridge = document.getElementById('bridge-visual');
-            if (option === 1) {
+        function actFloor2(opt) {
+            stopTimer();
+            if(opt === 1) {
                 playSound('buzzer');
-                bridge.innerHTML = "[_          _]"; // Breaks more
-                showToast("Responder con odio rompe más el puente.");
-            } else if (option === 2) {
-                showToast("Ignorar está bien, pero no repara el daño.");
-            } else if (option === 3) {
-                bridge.innerHTML = "[==========]"; // Repairs
-                bridge.classList.add('bridge-repaired');
-                unlockGem(1);
-                showToast("¡Gema del Respeto obtenida!");
-                setTimeout(nextFloor, 2000);
+                speak("Pelear rompe más el puente.");
+                document.getElementById('bridge').innerText = "[_ MUY ROTO _]";
+                setTimeout(renderFloor2, 1500);
+            } else {
+                playSound('ding');
+                document.getElementById('bridge').innerText = "[==========]";
+                document.getElementById('bridge').style.color = "#0f0";
+                completeLevel(1);
             }
         }
 
-        // 3. FLOOR 3: BALANCE
         function renderFloor3() {
-            // Reset logic if first time
-            if (!state.floor3Data.interval) {
-                startFloor3Loop();
-            }
+            if(!state.floor3Data.interval) startF3Loop();
+            if(state.floor3Data.time === 30) speak("Mantén tu energía y amigos altos. Tienes 30 segundos.");
 
             stage.innerHTML = `
                 <div class="panel">
-                    <h3>Piso 3: El Jardín</h3>
-                    <p>¡Mantén el equilibrio! Llega al 80% en ambas barras.</p>
-                    <div class="timer" id="f3-timer">30</div>
-                    
+                    <h3>Piso 3: El Jardín ⚖️</h3>
+                    <h1 style="color:yellow" id="f3-timer">${state.floor3Data.time}</h1>
                     <div class="stats-container">
                         <div class="stat-row">
-                            <span class="stat-label">⚡</span>
-                            <div class="progress-bar-bg"><div id="bar-energy" class="progress-bar-fill" style="width:20%"></div></div>
+                            <span>⚡</span>
+                            <div class="progress-bar-bg"><div id="bar-energy" class="progress-bar-fill" style="width:${state.floor3Data.energy}%"></div></div>
                         </div>
                         <div class="stat-row">
-                            <span class="stat-label">❤️</span>
-                            <div class="progress-bar-bg"><div id="bar-social" class="progress-bar-fill fill-social" style="width:20%"></div></div>
+                            <span>❤️</span>
+                            <div class="progress-bar-bg"><div id="bar-social" class="progress-bar-fill" style="width:${state.floor3Data.social}%; background:#ff416c"></div></div>
                         </div>
                     </div>
-
-                    <button class="btn" onclick="actFloor3('tablet')">📱 Tablet</button>
-                    <button class="btn" onclick="actFloor3('bike')">🚴 Bici</button>
-                    <button class="btn" onclick="actFloor3('friends')">⚽ Amigos</button>
+                    <div style="display:flex; flex-wrap:wrap; justify-content:center">
+                        <button class="btn" style="width:40%" onclick="actFloor3('tablet')">📱 Tablet</button>
+                        <button class="btn" style="width:40%" onclick="actFloor3('bike')">🚴 Bici</button>
+                        <button class="btn" style="width:40%" onclick="actFloor3('sleep')">😴 Siesta</button>
+                        <button class="btn" style="width:40%" onclick="actFloor3('friends')">⚽ Amigos</button>
+                    </div>
                 </div>
             `;
         }
 
-        function startFloor3Loop() {
-            state.floor3Data.energy = 20;
-            state.floor3Data.social = 20;
+        function startF3Loop() {
             state.floor3Data.time = 30;
+            state.floor3Data.energy = 30;
+            state.floor3Data.social = 30;
             
             state.floor3Data.interval = setInterval(() => {
                 state.floor3Data.time--;
-                document.getElementById('f3-timer').innerText = state.floor3Data.time;
-                
-                // Lose condition
+                const tInfo = document.getElementById('f3-timer');
+                if(tInfo) tInfo.innerText = state.floor3Data.time;
+
                 if (state.floor3Data.time <= 0) {
                     clearInterval(state.floor3Data.interval);
                     state.floor3Data.interval = null;
-                    playSound('buzzer');
-                    showToast("¡Se acabó el tiempo! Reintentando...");
-                    setTimeout(renderFloor3, 1500); // Restart level
+                    speak("Se acabó el tiempo. Inténtalo de nuevo.");
+                    setTimeout(renderFloor3, 1000);
                 }
             }, 1000);
         }
 
-        function actFloor3(action) {
-            if (state.floor3Data.time <= 0) return;
+        function actFloor3(act) {
+            if(act === 'tablet') { state.floor3Data.energy -= 10; state.floor3Data.social += 5; }
+            if(act === 'bike') { state.floor3Data.energy += 15; state.floor3Data.social -= 5; }
+            if(act === 'sleep') { state.floor3Data.energy += 20; state.floor3Data.social -= 10; }
+            if(act === 'friends') { state.floor3Data.social += 20; state.floor3Data.energy -= 10; }
 
-            if (action === 'tablet') {
-                state.floor3Data.social += 5;
-                state.floor3Data.energy -= 5;
-            } else if (action === 'bike') {
-                state.floor3Data.energy += 15;
-            } else if (action === 'friends') {
-                state.floor3Data.social += 15;
-                state.floor3Data.energy -= 5;
-            }
-
-            // Clamp values
-            state.floor3Data.social = Math.min(100, Math.max(0, state.floor3Data.social));
             state.floor3Data.energy = Math.min(100, Math.max(0, state.floor3Data.energy));
+            state.floor3Data.social = Math.min(100, Math.max(0, state.floor3Data.social));
 
-            // Update UI
             document.getElementById('bar-energy').style.width = state.floor3Data.energy + '%';
             document.getElementById('bar-social').style.width = state.floor3Data.social + '%';
 
-            // Win Condition
-            if (state.floor3Data.social >= 80 && state.floor3Data.energy >= 80) {
+            if(state.floor3Data.energy > 80 && state.floor3Data.social > 80) {
                 clearInterval(state.floor3Data.interval);
-                state.floor3Data.interval = null; // Prevent loops
-                unlockGem(2);
-                showToast("¡Equilibrio perfecto! Gema obtenida.");
-                setTimeout(nextFloor, 2000);
+                state.floor3Data.interval = null;
+                completeLevel(2);
             }
         }
 
-        // 4. FLOOR 4: SECURITY (Danger Room)
         function renderFloor4() {
+            speak("¡Peligro! Alguien pide tu nombre real. Tienes 5 segundos para decidir.");
             stage.innerHTML = `
                 <div class="panel danger-room">
-                    <h3>Piso 4: Sala de Peligros</h3>
-                    <div class="crystal" onclick="actFloor4('crystal')">💎</div>
-                    <p style="color:#ff9999">"¡Hay un incendio! Dame tu nombre completo para apagarlo"</p>
-                    
-                    <input type="text" class="input-fake" placeholder="Escribe tu nombre aquí..." onfocus="actFloor4('input')">
-                    
-                    <div style="display:flex; justify-content:center; gap:20px; align-items:center; margin-top:20px;">
-                        <span style="font-size:3rem; cursor:pointer;" onclick="actFloor4('cables')">🔌</span>
-                        <div class="emergency-btn" onclick="actFloor4('button')">🚨</div>
-                        <span style="font-size:3rem; cursor:pointer;" onclick="actFloor4('water')">💧</span>
+                    <h3>Piso 4: Sala de Peligros 🛡️</h3>
+                    <div class="timer-wrapper" id="timer-wrapper"><div class="timer-bar" id="timer-bar"></div></div>
+                    <p style="color:#ffcccc">Un extraño dice: "Dime tu nombre y te doy dulces".</p>
+                    <input type="text" disabled placeholder="Escribir nombre..." style="background:#555; border:1px solid #777; width:90%; padding:10px;">
+                    <p>¿Qué haces?</p>
+                    <div style="display:flex; justify-content:center; gap:20px;">
+                        <button class="btn" style="background:#555" onclick="actFloor4('write')">Escribir</button>
+                        <div class="emergency-btn" onclick="actFloor4('help')">🚨</div>
                     </div>
-                    <p><small>¡Toca el botón correcto!</small></p>
                 </div>
             `;
+            startTimer(5, () => {
+                showToast("¡Pide ayuda rápido!");
+                renderFloor4();
+            });
         }
 
         function actFloor4(action) {
-            if (action === 'button') {
-                // Correct
-                unlockGem(3);
-                playSound('win');
-                showToast("¡Ayuda solicitada! Gema de Seguridad obtenida.");
-                setTimeout(nextFloor, 2000);
+            stopTimer();
+            if(action === 'help') {
+                completeLevel(3);
             } else {
-                // Incorrect
                 playSound('buzzer');
-                if(action === 'input') showToast("¡Nunca des datos personales a extraños/cristales!");
-                else showToast("¡Eso es peligroso! Busca un adulto.");
-                
-                // Visual shake
-                const panel = document.querySelector('.panel');
-                panel.style.animation = 'shake 0.5s';
-                setTimeout(() => panel.style.animation = '', 500);
+                speak("¡Nunca des tu nombre a extraños!");
+                const p = document.querySelector('.panel');
+                p.style.animation = 'none';
+                p.offsetHeight; 
+                p.style.animation = 'pulse 0.5s'; 
+                setTimeout(renderFloor4, 1500);
             }
         }
 
-        // 5. VICTORY
-        function renderVictory() {
-            createConfetti();
+        function completeLevel(gemIdx) {
             playSound('win');
+            state.gems[gemIdx] = true;
+            const slot = document.getElementById('gem-'+(gemIdx+1));
+            slot.classList.add('active');
+            speak("¡Muy bien! Gema conseguida.");
+            showToast("¡Nivel Completado!");
+            setTimeout(() => {
+                if(state.currentFloorIdx < 3) {
+                    state.currentFloorIdx++;
+                    state.view = 'tower';
+                    render();
+                } else {
+                    state.view = 'victory';
+                    render();
+                }
+            }, 2000);
+        }
+
+        function renderVictory() {
+            speak("¡Felicidades! Eres un Ciudadano Digital.");
+            createConfetti(); 
+
             stage.innerHTML = `
-                <div class="panel diploma">
+                <div class="panel" style="border-color:gold; background:rgba(0,0,0,0.8)">
                     <span class="big-emoji">🏆</span>
-                    <h1 style="color:gold; text-shadow: 2px 2px 0 #000;">¡FELICIDADES!</h1>
-                    <p>Has completado "La Torre del Guardián".</p>
-                    <p>Ahora eres un Maestro de la Ciudadanía Digital.</p>
-                    <div style="font-size:2rem; margin: 20px 0;">
-                        🔒 🤝 ⚖️ 🛡️
+                    <h1 style="color:gold; text-shadow: 2px 2px 0 black">¡FELICIDADES!</h1>
+                    <h3 style="color:white">ERES UN CIUDADANO DIGITAL</h3>
+                    <p>Has completado la Torre del Guardián.</p>
+                    <div style="font-size:2.5rem; margin: 20px 0; letter-spacing:10px;">
+                        🔒🤝⚖️🛡️
                     </div>
-                    <button class="btn" onclick="location.reload()">Jugar otra vez</button>
+                    <!-- AQUÍ ESTÁ EL CAMBIO IMPORTANTE: resetGame() en lugar de reload() -->
+                    <button class="btn" onclick="resetGame()">Jugar Otra Vez</button>
                 </div>
             `;
         }
 
         function createConfetti() {
+            if(confettiInterval) clearInterval(confettiInterval);
             const colors = ['#f00', '#0f0', '#00f', '#ff0', '#0ff', '#f0f'];
-            for (let i = 0; i < 50; i++) {
+            
+            confettiInterval = setInterval(() => {
                 const conf = document.createElement('div');
-                conf.classList.add('confetti');
+                conf.innerText = '🎉';
+                conf.style.position = 'fixed';
                 conf.style.left = Math.random() * 100 + 'vw';
-                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                conf.style.opacity = Math.random();
+                conf.style.top = '-50px';
+                conf.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                conf.style.transition = 'top 3s linear, transform 3s ease-in-out';
+                conf.style.zIndex = 50;
                 document.body.appendChild(conf);
-            }
+
+                setTimeout(() => {
+                    conf.style.top = '110vh';
+                    conf.style.transform = `rotate(${Math.random()*360}deg)`;
+                }, 100);
+
+                setTimeout(() => conf.remove(), 4000);
+            }, 200);
         }
 
-        // --- NAVIGATION ---
-        function nextFloor() {
-            state.currentFloor++;
-            render();
-        }
-
-        // Init Game
         render();
-
     </script>
 </body>
 </html>
